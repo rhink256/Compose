@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  server:
+    image: nexus.local:8080/rhink/temperature_server:latest
+    ports:
+      - "8080:8080"
+      - "9990:9990"
+  client:
+    image: nexus.local:8080/rhink/client:latest
+    ports:
+      - "80:8080"
+  database:
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - temperature_database:/var/lib/postgres/data
+    env_file: postgres.env
+volumes:
+  temperature_database:
