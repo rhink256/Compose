@@ -7,6 +7,8 @@ services:
       - "9990:9990"
     depends_on:
       - "database"
+    environment:
+      - DB_HOST=database.local
   client:
     image: nexus.local:8080/rhink/client:latest
     ports:
