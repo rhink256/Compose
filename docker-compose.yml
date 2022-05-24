@@ -3,25 +3,38 @@ services:
   server:
     image: nexus.local:8080/rhink/temperature_server:latest
     ports:
-      - "8080:8080"
       - "9990:9990"
+      - "8081:8080"
     depends_on:
-      - "database"
-    environment:
-      - DB_HOST=database.local
+      database:
+        condition: service_healthy
+    networks:
+      - temperature_network
   client:
     image: nexus.local:8080/rhink/client:latest
     ports:
       - "80:8080"
-    environment:
-      - SERVER_URL=host.rhink.net
-      - SERVER_PROTOCOL=http://
+    networks:
+      - temperature_network
   database:
     image: postgres
     ports:
       - "5432:5432"
     volumes:
       - temperature_database:/var/lib/postgres/data
-    env_file: postgres.env
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - temperature_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 15s  
+
 volumes:
   temperature_database:
+
+networks:
+  temperature_network:
